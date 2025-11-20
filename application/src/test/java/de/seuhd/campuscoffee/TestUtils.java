@@ -1,16 +1,16 @@
 package de.seuhd.campuscoffee;
 
-import de.seuhd.campuscoffee.api.dtos.PosDto;
-import io.restassured.http.ContentType;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import de.seuhd.campuscoffee.api.dtos.PosDto;
 import static io.restassured.RestAssured.given;
-
+import io.restassured.http.ContentType;
+//imports automatically reorganized?
 /**
  * Utility class for system tests.
  * Provides methods to manage PostgreSQL testcontainers and perform common API operations.
@@ -55,16 +55,16 @@ public class TestUtils {
     }
 
     // TODO: Uncomment this after implementing filtering by name.
-//    public static PosDto retrievePosByName(String name) {
-//        return given()
-//                .contentType(ContentType.JSON)
-//                .queryParam("name", name)
-//                .when()
-//                .get("/api/pos/filter")
-//                .then()
-//                .statusCode(200)
-//                .extract().as(PosDto.class);
-//    }
+    public static PosDto retrievePosByName(String name) {
+        return given()
+                .contentType(ContentType.JSON)
+                .queryParam("name", name)
+                .when()
+                .get("/api/pos/filter")
+                .then()
+                .statusCode(200)
+                .extract().as(PosDto.class);
+    }
 
     public static List<PosDto> createPos(List<PosDto> posList) {
         return posList.stream()

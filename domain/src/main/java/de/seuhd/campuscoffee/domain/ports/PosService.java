@@ -1,15 +1,16 @@
 package de.seuhd.campuscoffee.domain.ports;
 
 
+import java.util.List;
+
+import org.jspecify.annotations.NonNull;
+
 import de.seuhd.campuscoffee.domain.exceptions.DuplicatePosNameException;
 import de.seuhd.campuscoffee.domain.exceptions.OsmNodeMissingFieldsException;
 import de.seuhd.campuscoffee.domain.exceptions.OsmNodeNotFoundException;
 import de.seuhd.campuscoffee.domain.exceptions.PosNotFoundException;
 import de.seuhd.campuscoffee.domain.model.CampusType;
 import de.seuhd.campuscoffee.domain.model.Pos;
-import org.jspecify.annotations.NonNull;
-
-import java.util.List;
 
 /**
  * Service interface for POS (Point of Sale) operations.
@@ -44,6 +45,14 @@ public interface PosService {
     @NonNull Pos getById(@NonNull Long id) throws PosNotFoundException;
 
     // TODO: Add a new getByName method to enable fetching POS by name.
+    /**Retrieves a specific Point of Sale by its name.
+     * 
+     * @param pos contains the name to search for; must not be null
+     * @return the POS entity with the specified name; never null
+     * @throws PosNotFoundException if no POS exists with the given name
+     * @throws DuplicatePosNameException if multiple POS exist with that name
+     */
+    @NonNull Pos getByNamePos(@NonNull Pos pos) throws PosNotFoundException, DuplicatePosNameException;
 
     /**
      * Creates a new POS or updates an existing one.

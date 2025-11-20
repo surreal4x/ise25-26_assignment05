@@ -1,24 +1,27 @@
 package de.seuhd.campuscoffee.domain.impl;
 
+ 
+
+import java.util.List;
+import java.util.Objects;
+
+import org.jspecify.annotations.NonNull;
+import org.springframework.stereotype.Service;
+
 import de.seuhd.campuscoffee.domain.exceptions.DuplicatePosNameException;
 import de.seuhd.campuscoffee.domain.exceptions.OsmNodeMissingFieldsException;
 import de.seuhd.campuscoffee.domain.exceptions.OsmNodeNotFoundException;
+import de.seuhd.campuscoffee.domain.exceptions.PosNotFoundException;
 import de.seuhd.campuscoffee.domain.model.CampusType;
 import de.seuhd.campuscoffee.domain.model.OsmAmenity;
 import de.seuhd.campuscoffee.domain.model.OsmNode;
 import de.seuhd.campuscoffee.domain.model.Pos;
-import de.seuhd.campuscoffee.domain.exceptions.PosNotFoundException;
 import de.seuhd.campuscoffee.domain.model.PosType;
 import de.seuhd.campuscoffee.domain.ports.OsmDataService;
 import de.seuhd.campuscoffee.domain.ports.PosDataService;
 import de.seuhd.campuscoffee.domain.ports.PosService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Implementation of the POS service that handles business logic related to POS entities.
@@ -49,6 +52,19 @@ public class PosServiceImpl implements PosService {
     }
 
     // TODO: Implement getByName after adding it to the PosService interface. Note that the PosDataService already supports filtering by name.
+
+    @Override
+    public @NonNull Pos getByNamePos(@NonNull Pos pos) throws PosNotFoundException {
+        Objects.requireNonNull(pos);
+        String name = pos.name();
+        if (name == null || name.isBlank()) {
+            log.warn("Attempted to get POS with empty name");
+            throw new PosNotFoundException("valid POS name must be provided");
+        }
+
+        log.info("Retrieving POS with name: {}", name);
+        return posDataService.getByName(name);
+    }
 
     @Override
     public @NonNull Pos upsert(@NonNull Pos pos) throws PosNotFoundException {

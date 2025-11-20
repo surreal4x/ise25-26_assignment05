@@ -11,3 +11,11 @@ Feature: Points of Sale Management
     Then the POS list should contain the same elements in the same order
 
 # TODO: Add new scenario "Update one of three existing POS"
+  Scenario: Update and retrieve POS
+    Given a POS list
+    When I update a POS with the following elements
+      | name                   | description                      | type            | campus    | street          | houseNumber  | postalCode | city       |
+      | Schmelzpunkt           | Great waffles                    | CAFE            | ALTSTADT  | Hauptstraße     | 90           | 69117      | Heidelberg |
+    to
+      | Schmelzpunkt           | Amazing waffles                  | CAFE            | ALTSTADT  | Hauptstraße     | 90           | 69117      | Heidelberg |
+    Then only the updated POS should differ in exclusively the changed elements

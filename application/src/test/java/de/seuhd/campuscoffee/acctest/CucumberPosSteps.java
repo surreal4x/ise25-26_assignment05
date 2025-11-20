@@ -1,15 +1,9 @@
 package de.seuhd.campuscoffee.acctest;
 
-import de.seuhd.campuscoffee.api.dtos.PosDto;
-import de.seuhd.campuscoffee.domain.model.CampusType;
-import de.seuhd.campuscoffee.domain.model.PosType;
-import de.seuhd.campuscoffee.domain.ports.PosService;
-import io.cucumber.java.*;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
-import io.cucumber.spring.CucumberContextConfiguration;
-import io.restassured.RestAssured;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -17,11 +11,23 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.util.List;
-import java.util.Map;
-
-import static de.seuhd.campuscoffee.TestUtils.*;
-import static org.assertj.core.api.Assertions.assertThat;
+import static de.seuhd.campuscoffee.TestUtils.configurePostgresContainers;
+import static de.seuhd.campuscoffee.TestUtils.createPos;
+import static de.seuhd.campuscoffee.TestUtils.getPostgresContainer;
+import static de.seuhd.campuscoffee.TestUtils.retrievePos;
+import static de.seuhd.campuscoffee.TestUtils.updatePos;
+import de.seuhd.campuscoffee.api.dtos.PosDto;
+import de.seuhd.campuscoffee.domain.model.CampusType;
+import de.seuhd.campuscoffee.domain.model.PosType;
+import de.seuhd.campuscoffee.domain.ports.PosService;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.DataTableType;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import io.cucumber.spring.CucumberContextConfiguration;
+import io.restassured.RestAssured;
 
 /**
  * Step definitions for the POS Cucumber tests.
@@ -92,6 +98,11 @@ public class CucumberPosSteps {
     }
 
     // TODO: Add Given step for new scenario
+    @Given("an existent POS list")
+    public void anExistentPosList() {
+        List<PosDto> retrievedPosList = retrievePos();
+        assertThat(retrievedPosList).isNotEmpty();
+    }
 
     // When -----------------------------------------------------------------------
 
@@ -101,7 +112,31 @@ public class CucumberPosSteps {
         assertThat(createdPosList).size().isEqualTo(posList.size());
     }
 
-    // TODO: Add When step for new scenario
+        // TODO: Add When step for new scenario
+        @When("I update a POS with the following name")
+        public void updatePosWithTheFollowingName(PosDto updateData) {
+
+        PosDto existing = retrievePos().stream()
+                .filter(p -> p.name().equals(updateData.name()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No POS with name " + updateData.name()));
+
+        PosDto toUpdate = PosDto.builder()
+                .id(existing.id())
+                .createdAt(existing.createdAt())
+                .updatedAt(existing.updatedAt())
+                .name(updateData.name())
+                .description(updateData.description())
+                .type(updateData.type())
+                .campus(updateData.campus())
+                .street(updateData.street())
+                .houseNumber(updateData.houseNumber())
+                .postalCode(updateData.postalCode())
+                .city(updateData.city())
+                .build();
+
+        updatedPos = updatePos(List.of(toUpdate)).get(0);
+        }
 
     // Then -----------------------------------------------------------------------
 
@@ -114,4 +149,11 @@ public class CucumberPosSteps {
     }
 
     // TODO: Add Then step for new scenario
+    @Then("the POS data should be updated")
+    public void thePosDataShouldBeUpdated(PosDto expected) {
+        assertThat(updatedPos)
+                .usingRecursiveComparison()
+                .ignoringFields("id", "createdAt", "updatedAt")
+                .isEqualTo(expected);
+    }
 }
